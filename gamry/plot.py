@@ -33,7 +33,7 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
     if legend_title == 'Sample':
         legend_title_text = legend_title
     else:
-        legend_title_text = legend_title + '( ' + UNITS[legend_title] + ')'
+        legend_title_text = legend_title + ' (' + UNITS[legend_title] + ')'
 
     fig.update_layout(
         width=1400,
@@ -63,7 +63,7 @@ def eispot_bode(signals, title, legend_title, db=True):
     if legend_title == 'Sample':
         legend_title_text = legend_title
     else:
-        legend_title_text = legend_title + '( ' + UNITS[legend_title] + ')'
+        legend_title_text = legend_title + ' (' + UNITS[legend_title] + ')'
 
     fig.update_layout(
         width=1400,

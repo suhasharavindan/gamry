@@ -5,7 +5,7 @@ Functions handling Gamry data.
 import os, re
 from tkinter import Tk, filedialog
 from pathlib import Path
-from gamry import EISPOT, EISMON, CV, CPC
+from gamry.signal import EISPOT, EISMON, CV, CPC
 
 def load_signals(folderpath=None):
     # Option to not give folder and select it using GUI
