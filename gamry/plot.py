@@ -26,6 +26,19 @@ UNITS = {'E':'V',
          'Plating Duty Cycle':'%'}
 
 def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_type):
+    """General plot function that can be used by multiple signals.
+
+    Args:
+        signals (list): Signals.
+        fig (pyplot.Figure): Figure to add signal plot to.
+        x (str): Dataframe column for x values.
+        y (str): Dataframe column for y values.
+        hover_template (str): Hover text format.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        signal_type (str): Type of signal to plot.
+    """
+
     for signal in signals:
         if signal.type == signal_type:
             signal.plot(x, y, fig, hover_template)
@@ -44,6 +57,14 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
     )
 
 def eispot_bode(signals, title, legend_title, db=True):
+    """Bode plot of EISPOT signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        db (bool, optional): Plot magnitude as dB. Defaults to True.
+    """
 
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.02)
 
@@ -54,6 +75,7 @@ def eispot_bode(signals, title, legend_title, db=True):
     hover_template1 = 'f = %{x:.3f} ' + UNITS[x] + '<br>|Z| = %{y:.1f}' + UNITS[y1]
     hover_template2 = 'f = %{x:.3f} ' + UNITS[x] + ',<br>∠Z = %{y:.1f}' + UNITS[y2]
 
+    # Plot both magnitude and phase in correct subplots in same legendgroup so they're connected
     for signal in signals:
         if signal.type == "EISPOT":
             color = next(COL_SEQ)
@@ -83,6 +105,14 @@ def eispot_bode(signals, title, legend_title, db=True):
     fig.show()
 
 def eispot_mag(signals, title, legend_title, db=True):
+    """Magnitude plot for EISPOT signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        db (bool, optional): Plot magnitude as dB. Defaults to True.
+    """
 
     fig = go.Figure()
     x = 'Freq'
@@ -100,6 +130,13 @@ def eispot_mag(signals, title, legend_title, db=True):
     fig.show()
 
 def eispot_phase(signals, title, legend_title):
+    """Phase plot for EISPOT signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+    """
 
     fig = go.Figure()
     x = 'Freq'
@@ -120,12 +157,21 @@ def eismon_phase(signals, title, legend_title):
     pass
 
 def cv(signals, title, legend_title):
+    """Plot CV signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+    """
+
     fig = go.Figure()
     x = 'E'
     y = 'I'
 
     hover_template = '%{text}<br>V = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
+    # Plot each cycle of CV signal as separate trace connected using legendgroup so they're identifiable
     for signal in signals:
         if signal.type == "CV":
             color = next(COL_SEQ)
@@ -150,6 +196,14 @@ def cv(signals, title, legend_title):
     fig.show()
 
 def cpc(signals, title, legend_title):
+    """Plot CPC signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+    """
+
     fig = go.Figure()
     x = 'Time'
     y = 'I'

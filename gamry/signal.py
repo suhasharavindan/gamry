@@ -9,18 +9,34 @@ from scipy.interpolate import interp1d
 import plotly.graph_objects as go
 
 class Signal:
+    """Parent signal object."""
+
     def __init__(self, signal_type, filepath):
+        """Initialize parent signal object.
+
+        Args:
+            signal_type (str): Signal type.
+            filepath (str): Signal file.
+        """
+
         self.type = signal_type
         self.df = None
         self.area = None
         self.label = None
-        self.params = {} # Holds parameters like diameter, area, etc
+        self.params = {} # Holds arbitrary parameters that are saved in the file notes
 
         self._read_note(filepath)
         self._update_attributes(filepath)
 
 
     def _read_data(self, filepath, skip_lines=None, skip_list=None):
+        """Read data from signal file.
+
+        Args:
+            filepath (str): Signal file.
+            skip_lines (int, optional): Skip file until this line. Defaults to None.
+            skip_list (list, optional): Pre-calculated lines to skip. Defaults to None.
+        """
 
         if skip_lines:
             skip_list = list(range(skip_lines))
@@ -30,6 +46,8 @@ class Signal:
         self._clean_df()
 
     def _clean_df(self):
+        """Clean up dataframe by dropping and rename columns."""
+
         self.df = self.df.drop(columns=['Unnamed: 0', 'Pt', 'IERange', 'Over'], errors='ignore')
         self.df = self.df.rename(columns={'Zphz':'Phase',
                                           'Zimag':'Im(Z)',
@@ -41,6 +59,15 @@ class Signal:
 
 
     def _find_skiplines(self, filepath, search_str):
+        """Find first line of data.
+
+        Args:
+            filepath (str): Signal file.
+            search_str (str): Search term to determine where start of data is.
+
+        Returns:
+            int: Row to skip file until.
+        """
 
         cnt = 1
         with open(filepath) as f:
@@ -51,11 +78,19 @@ class Signal:
         return cnt
 
     def _read_note(self, filepath):
+        """Read signal file for any notes to add to params.
+
+        Args:
+            filepath (str): Signal file.
+        """
 
         with open(filepath) as f:
+
+            # Start reading file from 7th line
             for _ in range(6):
                 next(f)
 
+            # Loop and collect parameters
             line = f.readline()
 
             if not line.strip() == '':
@@ -63,6 +98,7 @@ class Signal:
                 self.params[key.lower()] = val
 
                 for line in f:
+                    # Stop looping on first line without parameter
                     if line.startswith('PSTAT'):
                         break
                     key, val = [i.strip() for i in line.split(':')]
@@ -70,28 +106,60 @@ class Signal:
 
 
     def _update_attributes(self, filepath):
+        """Update object attributes to have default values if none are provided in signal file note.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         if 'label' in self.params:
             self.label = self.params['label']
         else:
-            re_res = re.search(r'\\([^\\]+).DTA', filepath) # take filename as label
+            re_res = re.search(r'\\([^\\]+).DTA', filepath) # Take filename as label
             self.label = re_res.group(1)
 
         if 'area' in self.params:
-            self.area = self.params['area'] # has to be given in cm2
+            self.area = self.params['area'] # Has to be given in cm2
         else:
-            self.area = np.pi * (0.05 ** 2) # assumes 1mm diameter electrode
+            self.area = np.pi * (0.05 ** 2) # Assumes 1mm diameter electrode
 
 
     def plot(self, x, y, fig, hover_template, row=None, col=None, legendgroup=None, showlegend=True, color=None):
+        """Plot signal with option for subplots.
+
+        Args:
+            x (str): Dataframe column for x values.
+            y (str): Dataframe column for y values.
+            fig (plotly.Figure): Figure to add signal to.
+            hover_template (str): Hover text format.
+            row (int, optional): Subplot row. Defaults to None.
+            col (int, optional): Subplot column. Defaults to None.
+            legendgroup (str, optional): Name of legend group. Defaults to None.
+            showlegend (bool, optional): Option to show legend. Defaults to True.
+            color (str, optional): Signal plot color. Defaults to None.
+        """
+
         if row and col:
             fig.add_trace(go.Scatter(x=self.df[x], y=self.df[y], mode='lines+markers', name=self.label, hovertemplate=hover_template, legendgroup=legendgroup, showlegend=showlegend, line=dict(color=color)), row=row, col=col)
         else:
             fig.add_trace(go.Scatter(x=self.df[x], y=self.df[y], mode='lines+markers', name=self.label, hovertemplate=hover_template))
 
 class EISPOT(Signal):
+    """Potentiometric EIS signal.
+
+    Args:
+        Signal (Signal): Parent signal object.
+    """
+
     def __init__(self, filepath):
+        """Initialize EISPOT object.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         super().__init__("EISPOT", filepath)
-        self.rs = None
+        self.rs = None # Series resistance
         self._read_data(filepath)
 
         self.db_corner_params = self._set_db_corner_freq()
@@ -99,6 +167,12 @@ class EISPOT(Signal):
 
 
     def _read_data(self, filepath):
+        """Determine lines to skip and read data.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         # Skip rows before header and one after header containing units
         skip_lines = super()._find_skiplines(filepath, 'ZCURVE')
         super()._read_data(filepath, skip_lines)
@@ -108,6 +182,13 @@ class EISPOT(Signal):
 
 
     def _set_db_corner_freq(self):
+        """Calculate corner frequency using 3dB point.
+
+        Returns:
+            dict: Corner frequency properties.
+        """
+
+        # Use interpolation to find value.
         f = interp1d(self.df['|Z| dB'], self.df['Freq'])
         try:
             corner_freq = f(3)
@@ -127,6 +208,13 @@ class EISPOT(Signal):
 
 
     def _set_phase_corner_frequency(self):
+        """Calculate corner frequency using 45 degree point.
+
+        Returns:
+            dict: Corner frequency properties.
+        """
+
+        # User interpolation to find value.
         f = interp1d(self.df['Phase'], self.df['Freq'])
         try:
             corner_freq = f(-45)
@@ -146,28 +234,65 @@ class EISPOT(Signal):
 
 
 class EISMON(Signal):
+    """Single frequency EIS signal object.
+
+    Args:
+        Signal (Signal): Parent signal object.
+    """
+
     def __init__(self, filepath):
+        """Initialize EISMON object.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         super().__init__("EISMON", filepath)
         self._read_data(filepath)
 
 
     def _read_data(self, filepath):
+        """Determine lines to skip and read data.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         # Skip rows before header and one after header containing units
         skip_lines = super()._find_skiplines(filepath, 'ZCURVE')
         super()._read_data(filepath, skip_lines)
 
 
 class CV(Signal):
+    """Cyclic voltammetry signal object.
+
+    Args:
+        Signal (Signal): Parent signal object.
+    """
+
     def __init__(self, filepath):
+        """Initialize CV object.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         super().__init__("CV", filepath)
         self._read_data(filepath)
 
     def _find_skiplines(self, filepath):
+        """Determine lines to skip in file.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         cnt = 1
         curve_num = 1
         skip_list = []
         search_str = 'CURVE' + str(curve_num)
 
+        # Break apart each cycle and get the corresponding rows
         with open(filepath) as f:
             for line in f:
                 if search_str in line:
@@ -176,31 +301,48 @@ class CV(Signal):
                     search_str = 'CURVE' + str(curve_num)
                 cnt += 1
 
-        skip_list.append(cnt)
+        skip_list.append(cnt) # Inlcude end of file
         return skip_list
 
     def _read_data(self, filepath):
+        """Read data from file.
+
+        Args:
+            filepath (str): Signal file.
+        """
 
         skip_rows = self._find_skiplines(filepath)
         self.df_list = []
 
+        # Read data between rows found in find_skiplines
         for idx, row in enumerate(skip_rows[:-1]):
             skip_list = list(range(row))
             skip_list.append(row + 1)
             skip_list += list(range(skip_rows[idx+1], skip_rows[-1]))
-
             super()._read_data(filepath, None, skip_list)
+
+            # Include extra column specifying cycle number
             self.df['Curve'] = idx + 1
             self.df_list.append(self.df)
 
+        # Combine all separate curves into one dataframe
         self.df = pd.concat(self.df_list)
         self._clean_df()
         self.df['I'] = 1E6 * self.df['I']
 
     def plot(self, fig, curve, hover_template, color=None):
+        """Plot CV signal.
+
+        Args:
+            fig (plotly.Figure): Figure to add plot trace to.
+            curve (int): CV cycle number.
+            hover_template (str): Hover text format.
+            color (str, optional): Plot trace color. Defaults to None.
+        """
 
         show_legend = True if curve == 1 else False
 
+        # Plot specific curve
         fig.add_trace(go.Scatter(x=self.df[self.df['Curve'] == curve]['E'],
                                  y=self.df[self.df['Curve'] == curve]['I'],
                                  mode='lines',
@@ -213,11 +355,29 @@ class CV(Signal):
 
 
 class CPC(Signal):
+    """Controlled potential coulometry signal object.
+
+    Args:
+        Signal (Signal): Parent signal object.
+    """
+
     def __init__(self, filepath):
+        """Initialize CPC object.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         super().__init__("CPC", filepath)
         self._read_data(filepath)
 
     def _read_data(self, filepath):
+        """Determine lines to skip and read data.
+
+        Args:
+            filepath (str): Signal file.
+        """
+
         skip_lines = super()._find_skiplines(filepath, 'CURVE')
         super()._read_data(filepath, skip_lines)
 
