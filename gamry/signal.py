@@ -312,7 +312,7 @@ class CV(Signal):
         """
 
         skip_rows = self._find_skiplines(filepath)
-        self.df_list = []
+        df_list = []
 
         # Read data between rows found in find_skiplines
         for idx, row in enumerate(skip_rows[:-1]):
@@ -323,10 +323,10 @@ class CV(Signal):
 
             # Include extra column specifying cycle number
             self.df['Curve'] = idx + 1
-            self.df_list.append(self.df)
+            df_list.append(self.df)
 
         # Combine all separate curves into one dataframe
-        self.df = pd.concat(self.df_list)
+        self.df = pd.concat(df_list)
         self._clean_df()
         self.df['I'] = 1E6 * self.df['I']
 
