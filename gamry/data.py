@@ -12,6 +12,7 @@ def load_signals(folderpath=None, signal_type=None):
 
     Args:
         folderpath (str, optional): Folder with signal files. Defaults to None.
+        signal_type (str, optional): Signal type for filtering. Defaults to None.
 
     Returns:
         list: Signals.
@@ -55,6 +56,7 @@ def create_signal(filepath, signal_type=None):
 
     Args:
         filepath (str): Signal file.
+        signal_type (str, optional): Signal type for filtering. Defaults to None.
 
     Returns:
         signal object: Relevant signal project.
