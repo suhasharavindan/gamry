@@ -22,7 +22,7 @@ def load_signals(folderpath=None, signal_type=None):
     if not folderpath:
         root = Tk()
         root.withdraw()
-        folderpath = Path(filedialog.askdirectory(title = 'Select signal folder'))
+        folderpath = Path(filedialog.askdirectory(title='Select signal folder'))
 
     filenames = get_filenames(folderpath)
     signals = []
@@ -130,3 +130,21 @@ def filter_signals(signals, signal_type=None, label=None, **param_filters):
         filtered.append(signal)
 
     return filtered
+
+def convert_zview(signals):
+    """Generate EISPOT files that are compatible with ZView.
+
+    Args:
+        signals (list): Signals.
+    """
+
+    folder = Path(Path().absolute() / 'ZView')
+    folder.mkdir(parents=True, exist_ok=True)
+
+    for signal in filter_signals(signals, 'EISPOT'):
+        signal.df[['Freq', 'Re(Z)', 'Im(Z)']].to_csv(
+            folder / (signal.label + '.txt'),
+            sep='\t',
+            index=None,
+            header=False
+        )
