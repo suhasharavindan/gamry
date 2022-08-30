@@ -6,6 +6,7 @@ import itertools
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from gamry.data import filter_signals
 
 COL_SEQ = itertools.cycle(px.colors.qualitative.Alphabet)
 
@@ -39,9 +40,8 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
         signal_type (str): Type of signal to plot.
     """
 
-    for signal in signals:
-        if signal.type == signal_type:
-            signal.plot(x, y, fig, hover_template)
+    for signal in filter_signals(signals, signal_type=signal_type):
+        signal.plot(x, y, fig, hover_template)
 
     if legend_title == 'Sample':
         legend_title_text = legend_title
@@ -76,11 +76,10 @@ def eispot_bode(signals, title, legend_title, db=True):
     hover_template2 = 'f = %{x:.3f} ' + UNITS[x] + ',<br>∠Z = %{y:.1f}' + UNITS[y2]
 
     # Plot both magnitude and phase in correct subplots in same legendgroup so they're connected
-    for signal in signals:
-        if signal.type == "EISPOT":
-            color = next(COL_SEQ)
-            signal.plot(x, y1, fig, hover_template1, row=1, col=1, legendgroup=signal.label, color=color)
-            signal.plot(x, y2, fig, hover_template2, row=2, col=1, legendgroup=signal.label, showlegend=False, color=color)
+    for signal in filter_signals(signals, signal_type='EISPOT'):
+        color = next(COL_SEQ)
+        signal.plot(x, y1, fig, hover_template1, row=1, col=1, legendgroup=signal.label, color=color)
+        signal.plot(x, y2, fig, hover_template2, row=2, col=1, legendgroup=signal.label, showlegend=False, color=color)
 
     if legend_title == 'Sample':
         legend_title_text = legend_title
@@ -172,11 +171,10 @@ def cv(signals, title, legend_title):
     hover_template = '%{text}<br>V = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
     # Plot each cycle of CV signal as separate trace connected using legendgroup so they're identifiable
-    for signal in signals:
-        if signal.type == "CV":
-            color = next(COL_SEQ)
-            for curve in set(signal.df['Curve'].values):
-                signal.plot(fig, curve, hover_template, color=color)
+    for signal in filter_signals(signals, signal_type='CV'):
+        color = next(COL_SEQ)
+        for curve in set(signal.df['Curve'].values):
+            signal.plot(fig, curve, hover_template, color=color)
 
     if legend_title == 'Sample':
         legend_title_text = legend_title

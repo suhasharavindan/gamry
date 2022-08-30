@@ -7,7 +7,7 @@ from tkinter import Tk, filedialog
 from pathlib import Path
 from gamry.signal import EISPOT, EISMON, CV, CPC
 
-def load_signals(folderpath=None):
+def load_signals(folderpath=None, signal_type=None):
     """Read in signals from Gamry exported data.
 
     Args:
@@ -26,7 +26,7 @@ def load_signals(folderpath=None):
     filenames = get_filenames(folderpath)
     signals = []
     for filename in filenames:
-        signal = create_signal(os.path.join(folderpath, filename))
+        signal = create_signal(os.path.join(folderpath, filename), signal_type)
         if signal:
             signals.append(signal)
 
@@ -50,7 +50,7 @@ def get_filenames(folderpath):
 
     return filename_list
 
-def create_signal(filepath):
+def create_signal(filepath, signal_type=None):
     """Create proper signal object based on tag in signal file.
 
     Args:
@@ -65,6 +65,22 @@ def create_signal(filepath):
         next(f)
         data_type = re.search(r'TAG\t(\w+)', next(f)).group(1)
 
+    if signal_type:
+        if data_type == signal_type:
+            return _load_object(filepath, data_type)
+    else:
+        return _load_object(filepath, data_type)
+
+def _load_object(filepath, data_type):
+    """Load correct signal object depending on signal type.
+
+    Args:
+        filepath (str): Signal file.
+        data_type (str): Signal type.
+
+    Returns:
+        Signal: Signal object.
+    """
     if data_type == 'EISPOT':
         return EISPOT(filepath)
     elif data_type == 'EISMON':
