@@ -2,7 +2,6 @@
 Gamry is a python package that handles the outputted files from a Gamry electrochemistry instrument.
 
 ## Installing Gamry
-***
 It is recommended to first create a virtual environment. Next, run the following command in said environment:
 
 ```console
@@ -10,7 +9,6 @@ pip install git+https://github.com/suhasharavindan/gamry.git
 ```
 
 ## Gamry Features
-***
 Each data file is used to create a signal object. Using an object allows you to carry the dataframe along with several other attirbutes under one variable. The main attributes that would be useful are type, label and params.
 
 Params are the notes that are read in from the file. These must be written in a dictionary like format with a newline between each, like below:
@@ -23,7 +21,6 @@ The EISPOT signal has additional attributes of db_corner_params and phase_corner
 Additionally, there are data reading and plotting helper functions. These make it incredibly easy to read in the files and plot the data for visual analysis, as shown below.
 
 ## Using Gamry
-***
 Here are the majority of use cases for the package. There are other functions, such as the CV plotting function, that generally follow the format of one of the examples below. Use the docstrings to help determine how to use them.
 
 Load all the Gamry files in a folder:
@@ -57,5 +54,4 @@ convert_zview(signals)
 ```
 
 ## Contact
-***
 If you would like to contact me, you can reach me at saravind@caltech.edu.
