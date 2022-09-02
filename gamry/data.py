@@ -3,6 +3,7 @@ Functions handling Gamry data.
 """
 
 import os, re
+import pandas as pd
 from tkinter import Tk, filedialog
 from pathlib import Path
 from gamry.signal import EISPOT, EISMON, CV, CPC
@@ -148,3 +149,28 @@ def convert_zview(signals):
             index=None,
             header=False
         )
+
+def tidy_dataframe(signals):
+    """Create tidy dataframe from list of signals.
+
+    Args:
+        signals (list): Signals.
+
+    Returns:
+        pandas.DataFrame: Tidy dataframe combining all signals.
+    """
+
+    tidy_df = pd.DataFrame()
+
+    for signal in signals:
+        df = signal.df
+
+        # Add label, type and params as own columns
+        df['Label'] = signal.label
+        df['Type'] = signal.type
+        for key, val in signal.params.items():
+            df[key] = val
+
+        tidy_df = pd.concat([tidy_df, df], ignore_index=True)
+
+    return tidy_df
