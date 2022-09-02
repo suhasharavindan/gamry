@@ -134,7 +134,7 @@ def eispot_bode(signals, title, legend_title, db=True, layout='default'):
     y2 = 'Phase'
 
     hover_template1 = 'f = %{x:.3f} ' + UNITS[x] + '<br>|Z| = %{y:.1f}' + UNITS[y1]
-    hover_template2 = 'f = %{x:.3f} ' + UNITS[x] + ',<br>∠Z = %{y:.1f}' + UNITS[y2]
+    hover_template2 = 'f = %{x:.3f} ' + UNITS[x] + '<br>∠Z = %{y:.1f}' + UNITS[y2]
 
     # Plot both magnitude and phase in correct subplots in same legendgroup so they're connected
     for signal in filter_signals(signals, signal_type='EISPOT'):
@@ -184,7 +184,7 @@ def eispot_mag(signals, title, legend_title, db=True, layout='default'):
     x = 'Freq'
     y = '|Z| dB' if db else '|Z|'
 
-    hover_template = 'f=%{x:.3f}' + UNITS[x] + ', |Z|=%{y:.1f}' + UNITS[y]
+    hover_template = 'f=%{x:.3f}' + UNITS[x] + '<br>|Z|=%{y:.1f}' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
 
@@ -208,12 +208,41 @@ def eispot_phase(signals, title, legend_title, layout='default'):
     x = 'Freq'
     y = 'Phase'
 
-    hover_template = 'f=%{x:.3f}' + UNITS[x] + ', |Z|=%{y:.1f}' + UNITS[y]
+    hover_template = 'f=%{x:.3f}' + UNITS[x] + '<br>|Z|=%{y:.1f}' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+    for signal in filter_signals(signals, signal_type='EISPOT'):
+        signal.plot(x, y, fig, hover_template)
+
+    _set_layout(fig, layout)
+    fig.update_layout(
+        legend_title_text=legend_title,
+        title=title
+    )
 
     fig.update_xaxes(title_text="Frequency (" + UNITS[x] + ')', type='log')
     fig.update_yaxes(title_text="Phase (" + UNITS[y] + ')')
+    fig.show()
+
+def eispot_nyquist(signals, title, legend_title, layout='default'):
+    """Nyquist plot for EISPOT signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        layout (str, optional): Choose different layout format. Defaults to "default".
+    """
+
+    fig = go.Figure()
+    x = 'Re(Z)'
+    y = 'Im(Z)'
+
+    hover_template = 'Re(Z) = %{x:.3f} ' + UNITS[x] + '<br>Im(Z) = %{y:.1f} ' + UNITS[y]
+
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+
+    fig.update_xaxes(title_text="Re(Z) (" + UNITS[x] + ')')
+    fig.update_yaxes(title_text="Im(Z) (" + UNITS[y] + ')', scaleanchor='x', scaleratio=1)
     fig.show()
 
 def eismon_mag(signals, title, legend_title, layout='default'):
@@ -267,7 +296,7 @@ def cpc(signals, title, legend_title, layout='default'):
     x = 'Time'
     y = 'I'
 
-    hover_template = 'f=%{x:.3f}' + UNITS[x] + ', |Z|=%{y:.1f}' + UNITS[y]
+    hover_template = 't=%{x:.3f}' + UNITS[x] + '<br>I=%{y:.1f}' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "CPC", layout)
 
