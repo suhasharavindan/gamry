@@ -24,7 +24,7 @@ COL_SEQ = itertools.cycle(["#000000",
                            "#24ff24",
                            "#ffff6d"])
 
-UNITS = {'E':'V',
+UNITS = {'V':'V',
          'I':'μA',
          'Q':'C',
          'Scan Rate':'mV/s',
@@ -262,7 +262,7 @@ def cv(signals, title, legend_title, layout='default'):
     """
 
     fig = go.Figure()
-    x = 'E'
+    x = 'V'
     y = 'I'
 
     hover_template = '%{text}<br>V = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]

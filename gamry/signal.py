@@ -8,6 +8,30 @@ import numpy as np
 from scipy.interpolate import interp1d
 import plotly.graph_objects as go
 
+UNIT_FACTOR = {
+    'T':1e12,
+    'G':1e9,
+    'M':1e6,
+    'k':1e3,
+    1:1,
+    'c':1e-2,
+    'm':1e-3,
+    'u':1e-6,
+    'µ':1e-6,
+    'n':1e-9,
+    'p':1e-12,
+    'f':1e-15
+}
+
+UNIT_DEFAULT = dict(
+    v=1,
+    a='u',
+    ohm=1,
+    m='c',
+    s=1,
+    min=1
+)
+
 class Signal:
     """Parent signal object."""
 
@@ -104,6 +128,26 @@ class Signal:
                     key, val = [i.strip() for i in line.split(':')]
                     self.params[key.lower()] = val
 
+        self._clean_params()
+
+
+    def _clean_params(self):
+        """Converts numbers and corrects units in param values."""
+
+        for key, val in self.params.items():
+            # Handles singular units and not combinations like mV/s or N*m
+            if m := re.match(r'(\d+\.*\d*)\s*([TGMkcmuµnpf]*)([a-zA-Z]+)(\d*)$', val):
+                num = float(m.group(1))
+                factor = m.group(2) if m.group(2) else 1
+                unit = m.group(3).lower()
+                exponent = float(m.group(4)) if m.group(4) else 1
+
+                converted_num = num * (UNIT_FACTOR[factor] / UNIT_FACTOR[UNIT_DEFAULT[unit]]) ** exponent
+                self.params[key] = converted_num
+
+            elif m := re.match(r'(\d+\.*\d*)$', val):
+                self.params[key] = float(val)
+
 
     def _update_attributes(self, filepath):
         """Update object attributes to have default values if none are provided in signal file note.
@@ -119,9 +163,14 @@ class Signal:
             self.label = re_res.group(1)
 
         if 'area' in self.params:
-            self.area = self.params['area'] # Has to be given in cm2
+            self.area = self.params['area']
         else:
-            self.area = np.pi * (0.05 ** 2) # Assumes 1mm diameter electrode
+            if 'radius' in self.params:
+                self.area = np.pi * self.params['radius'] ** 2
+            elif 'diameter' in self.params:
+                self.area = np.pi * (self.params['diameter'] / 2) ** 2
+            else:
+                self.area = np.pi * (0.05 ** 2) # Assumes 1mm diameter electrode
 
 
     def plot(self, x, y, fig, hover_template, row=None, col=None, legendgroup=None, showlegend=True, color=None):
