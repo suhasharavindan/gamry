@@ -184,12 +184,12 @@ def eispot_mag(signals, title, legend_title, db=True, layout='default'):
     x = 'Freq'
     y = '|Z| dB' if db else '|Z|'
 
-    hover_template = 'f=%{x:.3f}' + UNITS[x] + '<br>|Z|=%{y:.1f}' + UNITS[y]
+    hover_template = 'f = %{x:.3f}' + UNITS[x] + '<br>|Z| = %{y:.1f}' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
 
-    fig.update_xaxes(title_text="Freq (" + UNITS[x] + ')', type='log')
-    fig.update_yaxes(title_text="|Z| (" + UNITS[y] + ')')
+    fig.update_xaxes(title_text="Frequency (" + UNITS[x] + ')', type='log')
+    fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
     if not db:
         fig.update_yaxes(type='log')
     fig.show()
@@ -208,7 +208,7 @@ def eispot_phase(signals, title, legend_title, layout='default'):
     x = 'Freq'
     y = 'Phase'
 
-    hover_template = 'f=%{x:.3f}' + UNITS[x] + '<br>|Z|=%{y:.1f}' + UNITS[y]
+    hover_template = 'f = %{x:.3f}' + UNITS[x] + '<br>∠Z = %{y:.1f}' + UNITS[y]
 
     for signal in filter_signals(signals, signal_type='EISPOT'):
         signal.plot(x, y, fig, hover_template)
@@ -241,15 +241,53 @@ def eispot_nyquist(signals, title, legend_title, layout='default'):
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
 
-    fig.update_xaxes(title_text="Re(Z) (" + UNITS[x] + ')')
-    fig.update_yaxes(title_text="Im(Z) (" + UNITS[y] + ')', scaleanchor='x', scaleratio=1)
+    fig.update_xaxes(title_text="Real Impedance (" + UNITS[x] + ')')
+    fig.update_yaxes(title_text="Imaginary Impedance (" + UNITS[y] + ')', scaleanchor='x', scaleratio=1)
     fig.show()
 
 def eismon_mag(signals, title, legend_title, layout='default'):
-    pass
+    """Magnitude plot for EISMON signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        layout (str, optional): Choose different layout format. Defaults to "default".
+    """
+
+    fig = go.Figure()
+    x = 'Time'
+    y = '|Z|'
+
+    hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>|Z| = %{y:.1f} ' + UNITS[y]
+
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+
+    fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
+    fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
+    fig.show()
 
 def eismon_phase(signals, title, legend_title, layout='default'):
-    pass
+    """Phase plot for EISMON signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        layout (str, optional): Choose different layout format. Defaults to "default".
+    """
+
+    fig = go.Figure()
+    x = 'Time'
+    y = 'Phase'
+
+    hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>∠Z = %{y:.1f} ' + UNITS[y]
+
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+
+    fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
+    fig.update_yaxes(title_text="Phase (" + UNITS[y] + ')')
+    fig.show()
 
 def cv(signals, title, legend_title, layout='default'):
     """Plot CV signals.
