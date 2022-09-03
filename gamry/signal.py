@@ -32,6 +32,25 @@ UNIT_DEFAULT = dict(
     min=1
 )
 
+def find_skiplines(filepath, search_str):
+    """Find first line of data.
+
+    Args:
+        filepath (str): Signal file.
+        search_str (str): Search term to determine where start of data is.
+
+    Returns:
+        int: Row to skip file until.
+    """
+
+    cnt = 1
+    with open(filepath) as f:
+        for line in f:
+            if re.match(search_str, line):
+                break
+            cnt += 1
+    return cnt
+
 class Signal:
     """Parent signal object."""
 
@@ -80,26 +99,6 @@ class Signal:
                                           'T':'Time',
                                           'Vf':'E',
                                           'Im':'I'}, errors='ignore')
-
-
-    def _find_skiplines(self, filepath, search_str):
-        """Find first line of data.
-
-        Args:
-            filepath (str): Signal file.
-            search_str (str): Search term to determine where start of data is.
-
-        Returns:
-            int: Row to skip file until.
-        """
-
-        cnt = 1
-        with open(filepath) as f:
-            for line in f:
-                if search_str in line:
-                    break
-                cnt += 1
-        return cnt
 
     def _read_note(self, filepath):
         """Read signal file for any notes to add to params.
@@ -173,7 +172,7 @@ class Signal:
                 self.area = np.pi * (0.05 ** 2) # Assumes 1mm diameter electrode
 
 
-    def plot(self, x, y, fig, hover_template, row=None, col=None, legendgroup=None, showlegend=True, color=None):
+    def plot(self, x, y, fig, hover_template, row=None, col=None, legendgroup=None, showlegend=True, color=None, mode='lines+markers'):
         """Plot signal with option for subplots.
 
         Args:
@@ -189,9 +188,22 @@ class Signal:
         """
 
         if row and col:
-            fig.add_trace(go.Scatter(x=self.df[x], y=self.df[y], mode='lines+markers', name=self.label, hovertemplate=hover_template, legendgroup=legendgroup, showlegend=showlegend, line=dict(color=color)), row=row, col=col)
+            fig.add_trace(go.Scatter(
+                x=self.df[x],
+                y=self.df[y],
+                mode=mode,
+                name=self.label,
+                hovertemplate=hover_template,
+                legendgroup=legendgroup,
+                showlegend=showlegend,
+                line=dict(color=color)), row=row, col=col)
         else:
-            fig.add_trace(go.Scatter(x=self.df[x], y=self.df[y], mode='lines+markers', name=self.label, hovertemplate=hover_template))
+            fig.add_trace(go.Scatter(
+                x=self.df[x],
+                y=self.df[y],
+                mode=mode,
+                name=self.label,
+                hovertemplate=hover_template))
 
 class EISPOT(Signal):
     """Potentiometric EIS signal.
@@ -208,27 +220,14 @@ class EISPOT(Signal):
         """
 
         super().__init__("EISPOT", filepath)
-        self.rs = None # Series resistance
-        self._read_data(filepath)
+        skip_lines = find_skiplines(filepath, 'ZCURVE')
+        super()._read_data(filepath, skip_lines)
+
+        self.rs = self.df['|Z|'].min() # Series resistance
+        self.df['|Z| dB'] = 20 * np.log10(self.df['|Z|'] / self.rs)
 
         self.db_corner_params = self._set_db_corner_freq()
         self.phase_corner_params = self._set_phase_corner_frequency()
-
-
-    def _read_data(self, filepath):
-        """Determine lines to skip and read data.
-
-        Args:
-            filepath (str): Signal file.
-        """
-
-        # Skip rows before header and one after header containing units
-        skip_lines = super()._find_skiplines(filepath, 'ZCURVE')
-        super()._read_data(filepath, skip_lines)
-
-        self.rs = self.df['|Z|'].min()
-        self.df['|Z| dB'] = 20 * np.log10(self.df['|Z|'] / self.rs)
-
 
     def _set_db_corner_freq(self):
         """Calculate corner frequency using 3dB point.
@@ -297,18 +296,8 @@ class EISMON(Signal):
         """
 
         super().__init__("EISMON", filepath)
-        self._read_data(filepath)
 
-
-    def _read_data(self, filepath):
-        """Determine lines to skip and read data.
-
-        Args:
-            filepath (str): Signal file.
-        """
-
-        # Skip rows before header and one after header containing units
-        skip_lines = super()._find_skiplines(filepath, 'ZCURVE')
+        skip_lines = find_skiplines(filepath, 'ZCURVE')
         super()._read_data(filepath, skip_lines)
 
 
@@ -329,7 +318,7 @@ class CV(Signal):
         super().__init__("CV", filepath)
         self._read_data(filepath)
 
-    def _find_skiplines(self, filepath):
+    def find_skiplines(self, filepath):
         """Determine lines to skip in file.
 
         Args:
@@ -360,7 +349,7 @@ class CV(Signal):
             filepath (str): Signal file.
         """
 
-        skip_rows = self._find_skiplines(filepath)
+        skip_rows = self.find_skiplines(filepath)
         df_list = []
 
         # Read data between rows found in find_skiplines
@@ -418,16 +407,30 @@ class CPC(Signal):
         """
 
         super().__init__("CPC", filepath)
-        self._read_data(filepath)
 
-    def _read_data(self, filepath):
-        """Determine lines to skip and read data.
+        skip_lines = find_skiplines(filepath, 'CURVE')
+        self._read_data(filepath, skip_lines)
+
+        self.df['I'] = 1E6 * self.df['I']
+
+
+class CHRONOA(Signal):
+    """Chronoamperometry signal object.
+
+    Args:
+        Signal (Signal): Parent signal object.
+    """
+
+    def __init__(self, filepath):
+        """Initialize CHRONOA object.
 
         Args:
             filepath (str): Signal file.
         """
 
-        skip_lines = super()._find_skiplines(filepath, 'CURVE')
-        super()._read_data(filepath, skip_lines)
+        super().__init__("CHRONOA", filepath)
+
+        skip_lines = find_skiplines(filepath, "CURVE")
+        self._read_data(filepath, skip_lines)
 
         self.df['I'] = 1E6 * self.df['I']

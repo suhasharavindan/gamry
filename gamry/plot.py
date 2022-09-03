@@ -91,7 +91,7 @@ def _set_layout(fig, layout):
     fig.update_xaxes(**AXES[layout])
     fig.update_yaxes(**AXES[layout])
 
-def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_type, layout='default'):
+def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_type, layout='default', mode='lines+markers'):
     """General plot function that can be used by multiple signals.
 
     Args:
@@ -107,7 +107,7 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
     """
 
     for signal in filter_signals(signals, signal_type=signal_type):
-        signal.plot(x, y, fig, hover_template)
+        signal.plot(x, y, fig, hover_template, mode=mode)
 
     _set_layout(fig, layout)
     fig.update_layout(
@@ -337,6 +337,28 @@ def cpc(signals, title, legend_title, layout='default'):
     hover_template = 't=%{x:.3f}' + UNITS[x] + '<br>I=%{y:.1f}' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "CPC", layout)
+
+    fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
+    fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')
+    fig.show()
+
+def chronoa(signals, title, legend_title, layout='default'):
+    """Plot CHRONOA signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        layout (str, optional): Choose different layout format. Defaults to "default".
+    """
+
+    fig = go.Figure()
+    x = 'Time'
+    y = 'I'
+
+    hover_template = 't=%{x:.3f}' + UNITS[x] + '<br>I=%{y:.1f}' + UNITS[y]
+
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CHRONOA", layout, mode='lines')
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')

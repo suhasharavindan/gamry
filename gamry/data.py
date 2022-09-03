@@ -6,7 +6,7 @@ import os, re
 import pandas as pd
 from tkinter import Tk, filedialog
 from pathlib import Path
-from gamry.signal import EISPOT, EISMON, CV, CPC
+from gamry import signal
 
 def load_signals(folderpath=None, signal_type=None):
     """Read in signals from Gamry exported data.
@@ -64,7 +64,7 @@ def create_signal(filepath, signal_type=None):
     """
 
     # Read tag in file to know signal type
-    with open (filepath) as f:
+    with open(filepath) as f:
         next(f)
         data_type = re.search(r'TAG\t(\w+)', next(f)).group(1)
 
@@ -85,13 +85,15 @@ def _load_object(filepath, data_type):
         Signal: Signal object.
     """
     if data_type == 'EISPOT':
-        return EISPOT(filepath)
+        return signal.EISPOT(filepath)
     elif data_type == 'EISMON':
-        return EISMON(filepath)
+        return signal.EISMON(filepath)
     elif data_type == 'CV':
-        return CV(filepath)
+        return signal.CV(filepath)
     elif data_type == 'CPC':
-        return CPC(filepath)
+        return signal.CPC(filepath)
+    elif data_type == 'CHRONOA':
+        return signal.CHRONOA(filepath)
     else:
         return None
 
