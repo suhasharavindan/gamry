@@ -41,13 +41,30 @@ class Signal:
 
         self.type = signal_type
         self.df = None
-        self.area = None
+        self._area = None
         self.label = None
         self.params = {} # Holds arbitrary parameters that are saved in the file notes
 
         self._read_note(filepath)
         self._update_attributes(filepath)
 
+    @property
+    def area(self):
+        """Electrode area.
+
+        Returns:
+            float: Area in cm2.
+        """
+        return self._area
+
+    @area.setter
+    def area(self, value):
+        """Sets electrode area.
+
+        Args:
+            value (float): Area in cm2.
+        """
+        self._area = value
 
     def _read_data(self, filepath, skip_lines=None, skip_list=None):
         """Read data from signal file.
@@ -139,14 +156,14 @@ class Signal:
             self.label = re_res.group(1)
 
         if 'area' in self.params:
-            self.area = self.params['area']
+            self._area = self.params['area']
         else:
             if 'radius' in self.params:
-                self.area = np.pi * self.params['radius'] ** 2
+                self._area = np.pi * self.params['radius'] ** 2
             elif 'diameter' in self.params:
-                self.area = np.pi * (self.params['diameter'] / 2) ** 2
+                self._area = np.pi * (self.params['diameter'] / 2) ** 2
             else:
-                self.area = np.pi * (0.05 ** 2) # Assumes 1mm diameter electrode
+                self._area = np.pi * (0.05 ** 2) # Assumes 1mm diameter electrode
 
 
     def plot(self, x, y, fig, hover_template, row=None, col=None, legendgroup=None, showlegend=True, color=None, mode='lines+markers'):
@@ -206,6 +223,17 @@ class EISPOT(Signal):
         self.db_corner_params = self._set_db_corner_freq()
         self.phase_corner_params = self._set_phase_corner_frequency()
 
+    @Signal.area.setter
+    def area(self, value):
+        """Sets area and recalculates corner frequencies.
+
+        Args:
+            value (float): Area in cm2.
+        """
+        self._area = value
+        self._set_db_corner_freq()
+        self._set_phase_corner_frequency()
+
     def _set_db_corner_freq(self):
         """Calculate corner frequency using 3dB point.
 
@@ -218,7 +246,7 @@ class EISPOT(Signal):
         try:
             corner_freq = f(3)
             cap = 1 / (2*np.pi*self.rs*corner_freq)
-            cap_area = cap / self.area
+            cap_area = cap / self._area
             factor = cap_area / 20E-6 # F/cm2
         except ValueError:
             corner_freq = None
@@ -244,7 +272,7 @@ class EISPOT(Signal):
         try:
             corner_freq = f(-45)
             cap = 1 / (2*np.pi*self.rs*corner_freq)
-            cap_area = cap / self.area
+            cap_area = cap / self._area
             factor = cap_area / 20E-6 # F/cm2
         except ValueError:
             corner_freq = None

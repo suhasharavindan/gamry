@@ -18,7 +18,7 @@ Plating Voltage : 0.5 V\
 Plating Frequency : 1000 Hz\
 Plating Time: 5 min
 
-The EISPOT signal has additional attributes of db_corner_params and phase_corner_params that hold values related to those corner frequency calculations. These assume a single electrode measured against a reference electrode and the standard equivalent circuit related to that. These are calculated when the object is created.
+The EISPOT signal has additional attributes of db_corner_params and phase_corner_params that hold values related to those corner frequency calculations. These assume a single electrode measured against a reference electrode and the standard equivalent circuit related to that. These are calculated when the object is created or when the area is altered.
 
 Additionally, there are data reading and plotting helper functions. These make it incredibly easy to read in the files and plot the data for visual analysis, as shown in the following section. The plotting functions have an option of layout that allows the use to change the theme of the plot - this includes 'default' and 'plain'.
 
