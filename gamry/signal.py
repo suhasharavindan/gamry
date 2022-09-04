@@ -7,30 +7,7 @@ import pandas as pd
 import numpy as np
 from scipy.interpolate import interp1d
 import plotly.graph_objects as go
-
-UNIT_FACTOR = {
-    'T':1e12,
-    'G':1e9,
-    'M':1e6,
-    'k':1e3,
-    1:1,
-    'c':1e-2,
-    'm':1e-3,
-    'u':1e-6,
-    'µ':1e-6,
-    'n':1e-9,
-    'p':1e-12,
-    'f':1e-15
-}
-
-UNIT_DEFAULT = dict(
-    v=1,
-    a='u',
-    ohm=1,
-    m='c',
-    s=1,
-    min=1
-)
+from gamry.data import UNIT_DEFAULT, UNIT_FACTOR
 
 def find_skiplines(filepath, search_str):
     """Find first line of data.

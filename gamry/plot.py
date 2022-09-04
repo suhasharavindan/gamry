@@ -5,7 +5,7 @@ Plotting functions for Gamry data.
 import itertools
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from gamry.data import filter_signals
+from gamry.data import filter_signals, UNITS
 
 # 15 color colorblind friendly palette
 COL_SEQ = itertools.cycle(["#000000",
@@ -23,22 +23,6 @@ COL_SEQ = itertools.cycle(["#000000",
                            "#db6d00",
                            "#24ff24",
                            "#ffff6d"])
-
-UNITS = {'V':'V',
-         'I':'μA',
-         'Q':'C',
-         'Scan Rate':'mV/s',
-         'Phase':'°',
-         'Im(Z)':'Ω',
-         'Re(Z)':'Ω',
-         '|Z|':'Ω',
-         '|Z| dB': 'dB',
-         'Freq':'Hz',
-         'Time':'s',
-         'Plating Voltage':'V',
-         'Plating Time':'min',
-         'Plating Freq':'Hz',
-         'Plating Duty Cycle':'%'}
 
 LAYOUT = dict(
     default=dict(

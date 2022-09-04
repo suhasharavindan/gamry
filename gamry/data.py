@@ -8,6 +8,46 @@ from tkinter import Tk, filedialog
 from pathlib import Path
 from gamry import signal
 
+UNITS = {'V':'V',
+         'I':'μA',
+         'Q':'C',
+         'Scan Rate':'mV/s',
+         'Phase':'°',
+         'Im(Z)':'Ω',
+         'Re(Z)':'Ω',
+         '|Z|':'Ω',
+         '|Z| dB': 'dB',
+         'Freq':'Hz',
+         'Time':'s',
+         'Plating Voltage':'V',
+         'Plating Time':'min',
+         'Plating Freq':'Hz',
+         'Plating Duty Cycle':'%'}
+
+UNIT_FACTOR = {
+    'T':1e12,
+    'G':1e9,
+    'M':1e6,
+    'k':1e3,
+    1:1,
+    'c':1e-2,
+    'm':1e-3,
+    'u':1e-6,
+    'µ':1e-6,
+    'n':1e-9,
+    'p':1e-12,
+    'f':1e-15
+}
+
+UNIT_DEFAULT = dict(
+    v=1,
+    a='u',
+    ohm=1,
+    m='c',
+    s=1,
+    min=1
+)
+
 def load_signals(folderpath=None, signal_type=None):
     """Read in signals from Gamry exported data.
 
