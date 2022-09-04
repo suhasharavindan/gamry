@@ -104,6 +104,7 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
         legend_title (str): Legend title.
         signal_type (str): Type of signal to plot.
         layout (str, optional): Choose different layout format. Defaults to "default".
+        mode (str, optional): Plot trace mode. Defaults to "lines+markers".
     """
 
     for signal in filter_signals(signals, signal_type=signal_type):

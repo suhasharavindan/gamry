@@ -135,7 +135,7 @@ class Signal:
 
         for key, val in self.params.items():
             # Handles singular units and not combinations like mV/s or N*m
-            if m := re.match(r'(\d+\.*\d*)\s*([TGMkcmuµnpf]*)([a-zA-Z]+)(\d*)$', val):
+            if m := re.match(r'^(\d+\.*\d*)\s*([TGMkcmuµnpf]*)([a-zA-Z]+)(\d*)$', val):
                 num = float(m.group(1))
                 factor = m.group(2) if m.group(2) else 1
                 unit = m.group(3).lower()
@@ -144,7 +144,7 @@ class Signal:
                 converted_num = num * (UNIT_FACTOR[factor] / UNIT_FACTOR[UNIT_DEFAULT[unit]]) ** exponent
                 self.params[key] = converted_num
 
-            elif m := re.match(r'(\d+\.*\d*)$', val):
+            elif m := re.match(r'^(\d+\.*\d*)$', val):
                 self.params[key] = float(val)
 
 
