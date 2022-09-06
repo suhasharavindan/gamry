@@ -52,6 +52,12 @@ from gamry.plot import eispot_bode
 eispot_bode(signals, 'Graph Title', 'Legend Title').show()
 ```
 
+Plot the EISPOT files in a bode plot setting the name of each trace to its respective param value:
+ ```python
+from gamry.plot import eispot_bode
+eispot_bode(signals, 'Graph Title', 'Legend Title', name='Plating Voltage').show()
+```
+
 Plot the EISPOT files in a bode plot using a plain theme:
  ```python
 from gamry.plot import eispot_bode
