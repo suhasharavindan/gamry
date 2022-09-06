@@ -20,7 +20,7 @@ Plating Time: 5 min
 
 The EISPOT signal has additional attributes of db_corner_params and phase_corner_params that hold values related to those corner frequency calculations. These assume a single electrode measured against a reference electrode and the standard equivalent circuit related to that. These are calculated when the object is created or when the area is altered.
 
-Additionally, there are data reading and plotting helper functions. These make it incredibly easy to read in the files and plot the data for visual analysis, as shown in the following section. The plotting functions have an option of layout that allows the use to change the theme of the plot - this includes 'default' and 'plain'.
+Additionally, there are data reading and plotting helper functions. These make it incredibly easy to read in the files and plot the data for visual analysis, as shown in the following section. The plotting functions have an option of layout that allows the use to change the theme of the plot - this includes 'default' and 'plain'. They also return the figure to allow post-customization.
 
 Finally, the package also includes data conversion functions that allow the user to manipulate it in other ways. The data can be converted to a ZView compatible file, or all the data can be combined into a tidy dataframe.
 
@@ -42,13 +42,13 @@ signals = load_signals(signal_type='EISPOT')
 Plot the EISPOT files in a bode plot:
  ```python
 from gamry.plot import eispot_bode
-eispot_bode(signals, 'Graph Title', 'Legend Title')
+eispot_bode(signals, 'Graph Title', 'Legend Title').show()
 ```
 
 Plot the EISPOT files in a bode plot using a plain format:
  ```python
 from gamry.plot import eispot_bode
-eispot_bode(signals, 'Graph Title', 'Legend Title', layout='plain')
+eispot_bode(signals, 'Graph Title', 'Legend Title', layout='plain').show()
 ```
 
 Filter signals to CVs with "sample1" in the label and a 0.5V plating voltage listed in the params:

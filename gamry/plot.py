@@ -5,7 +5,8 @@ Plotting functions for Gamry data.
 import itertools
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from gamry.data import filter_signals, UNITS
+from gamry.data import filter_signals
+from gamry.units import UNITS
 
 # 15 color colorblind friendly palette
 COL_SEQ = itertools.cycle(["#000000",
@@ -118,7 +119,7 @@ def eispot_bode(signals, title, legend_title, db=True, layout='default'):
     y1 = '|Z| dB' if db else '|Z|'
     y2 = 'Phase'
 
-    hover_template1 = 'f = %{x:.3f} ' + UNITS[x] + '<br>|Z| = %{y:.1f}' + UNITS[y1]
+    hover_template1 = 'f = %{x:.3f} ' + UNITS[x] + '<br>|Z| = %{y:.1f} ' + UNITS[y1]
     hover_template2 = 'f = %{x:.3f} ' + UNITS[x] + '<br>∠Z = %{y:.1f}' + UNITS[y2]
 
     # Plot both magnitude and phase in correct subplots in same legendgroup so they're connected
@@ -152,7 +153,8 @@ def eispot_bode(signals, title, legend_title, db=True, layout='default'):
     fig.update_xaxes(row=2, col=1, **AXES[layout], **XAXES_EXTRA[layout])
     fig.update_yaxes(row=1, col=1, **AXES[layout])
     fig.update_yaxes(row=2, col=1, **AXES[layout])
-    fig.show()
+
+    return fig
 
 def eispot_mag(signals, title, legend_title, db=True, layout='default'):
     """Magnitude plot for EISPOT signals.
@@ -169,7 +171,7 @@ def eispot_mag(signals, title, legend_title, db=True, layout='default'):
     x = 'Freq'
     y = '|Z| dB' if db else '|Z|'
 
-    hover_template = 'f = %{x:.3f}' + UNITS[x] + '<br>|Z| = %{y:.1f}' + UNITS[y]
+    hover_template = 'f = %{x:.3f}' + UNITS[x] + '<br>|Z| = %{y:.1f} ' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
 
@@ -177,7 +179,8 @@ def eispot_mag(signals, title, legend_title, db=True, layout='default'):
     fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
     if not db:
         fig.update_yaxes(type='log')
-    fig.show()
+
+    return fig
 
 def eispot_phase(signals, title, legend_title, layout='default'):
     """Phase plot for EISPOT signals.
@@ -206,7 +209,8 @@ def eispot_phase(signals, title, legend_title, layout='default'):
 
     fig.update_xaxes(title_text="Frequency (" + UNITS[x] + ')', type='log')
     fig.update_yaxes(title_text="Phase (" + UNITS[y] + ')')
-    fig.show()
+
+    return fig
 
 def eispot_nyquist(signals, title, legend_title, layout='default'):
     """Nyquist plot for EISPOT signals.
@@ -228,7 +232,8 @@ def eispot_nyquist(signals, title, legend_title, layout='default'):
 
     fig.update_xaxes(title_text="Real Impedance (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Imaginary Impedance (" + UNITS[y] + ')', scaleanchor='x', scaleratio=1)
-    fig.show()
+
+    return fig
 
 def eismon_mag(signals, title, legend_title, layout='default'):
     """Magnitude plot for EISMON signals.
@@ -250,7 +255,8 @@ def eismon_mag(signals, title, legend_title, layout='default'):
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
-    fig.show()
+
+    return fig
 
 def eismon_phase(signals, title, legend_title, layout='default'):
     """Phase plot for EISMON signals.
@@ -266,13 +272,14 @@ def eismon_phase(signals, title, legend_title, layout='default'):
     x = 'Time'
     y = 'Phase'
 
-    hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>∠Z = %{y:.1f} ' + UNITS[y]
+    hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>∠Z = %{y:.1f}' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Phase (" + UNITS[y] + ')')
-    fig.show()
+
+    return fig
 
 def cv(signals, title, legend_title, layout='default'):
     """Plot CV signals.
@@ -303,7 +310,8 @@ def cv(signals, title, legend_title, layout='default'):
     )
     fig.update_xaxes(title_text="Voltage (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')
-    fig.show()
+
+    return fig
 
 def cpc(signals, title, legend_title, layout='default'):
     """Plot CPC signals.
@@ -319,13 +327,14 @@ def cpc(signals, title, legend_title, layout='default'):
     x = 'Time'
     y = 'I'
 
-    hover_template = 't=%{x:.3f}' + UNITS[x] + '<br>I=%{y:.1f}' + UNITS[y]
+    hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "CPC", layout)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')
-    fig.show()
+
+    return fig
 
 def chronoa(signals, title, legend_title, layout='default'):
     """Plot CHRONOA signals.
@@ -341,10 +350,11 @@ def chronoa(signals, title, legend_title, layout='default'):
     x = 'Time'
     y = 'I'
 
-    hover_template = 't=%{x:.3f}' + UNITS[x] + '<br>I=%{y:.1f}' + UNITS[y]
+    hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "CHRONOA", layout, mode='lines')
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')
-    fig.show()
+
+    return fig
