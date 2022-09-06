@@ -121,16 +121,15 @@ def filter_signals(signals, signal_type=None, label=None, **param_filters):
             if not label in sig.label:
                 continue
 
+        skip = False
         if param_filters:
             for key, val in param_filters.items():
                 key = key.lower()
-                if key in sig.params.keys():
-                    if not sig.params[key] == val:
-                        continue
-                else:
-                    continue
+                if not sig.params.get(key) == val:
+                    skip = True
 
-        filtered.append(sig)
+        if not skip:
+            filtered.append(sig)
 
     return filtered
 

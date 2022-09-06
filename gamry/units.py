@@ -59,7 +59,7 @@ def factor_conversion(val):
         unit = m.group(3).lower()
         exponent = float(m.group(4)) if m.group(4) else 1
 
-        if factor in UNIT_FACTOR.keys() and unit in FACTOR_DEFAULT.keys():
+        if factor in UNIT_FACTOR and unit in FACTOR_DEFAULT:
             converted_num = num * (UNIT_FACTOR[factor] / UNIT_FACTOR[FACTOR_DEFAULT[unit]]) ** exponent
             return converted_num
 

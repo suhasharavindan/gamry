@@ -81,7 +81,6 @@ def eispot_bode(signals, title, legend_title, db=True, name=None, theme='default
         fig.update_yaxes(type='log', row=1, col=1)
 
     XAXES_EXTRA = dict(
-        default=dict(),
         plain=dict(
             dtick=1,    # Only show numbers for powers of 10
             minor=dict(ticklen=6, tickcolor="black")
@@ -89,7 +88,7 @@ def eispot_bode(signals, title, legend_title, db=True, name=None, theme='default
     )
 
     set_theme(fig, theme)
-    fig.update_xaxes(**XAXES_EXTRA[theme])
+    fig.update_xaxes(**XAXES_EXTRA.get(theme.lower()))
 
     return fig
 

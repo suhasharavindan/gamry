@@ -43,7 +43,6 @@ LAYOUT = dict(
 )
 
 AXES = dict(
-    default=dict(),
     plain=dict(
         showline=True,
         linewidth=1,
@@ -68,6 +67,7 @@ def set_theme(fig, theme):
         theme (str): Layout label.
     """
 
-    fig.update_layout(**LAYOUT[theme])
-    fig.update_xaxes(**AXES[theme])
-    fig.update_yaxes(**AXES[theme])
+    theme = theme.lower()
+    fig.update_layout(**LAYOUT.get(theme))
+    fig.update_xaxes(**AXES.get(theme))
+    fig.update_yaxes(**AXES.get(theme))
