@@ -59,11 +59,13 @@ def factor_conversion(val):
         unit = m.group(3).lower()
         exponent = float(m.group(4)) if m.group(4) else 1
 
-        converted_num = num * (UNIT_FACTOR[factor] / UNIT_FACTOR[FACTOR_DEFAULT[unit]]) ** exponent
-        return converted_num
+        if factor in UNIT_FACTOR.keys() and unit in FACTOR_DEFAULT.keys():
+            converted_num = num * (UNIT_FACTOR[factor] / UNIT_FACTOR[FACTOR_DEFAULT[unit]]) ** exponent
+            return converted_num
+
+        return None
 
     elif m := re.match(r'^(\d+\.*\d*)$', val):
         return float(val)
 
-    else:
-        return None
+    return None
