@@ -2,81 +2,13 @@
 Plotting functions for Gamry data.
 """
 
-import itertools
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from gamry.data import filter_signals
 from gamry.units import UNITS
+from gamry.theme import set_theme, COL_SEQ
 
-# 15 color colorblind friendly palette
-COL_SEQ = itertools.cycle(["#000000",
-                           "#004949",
-                           "#009292",
-                           "#ff6db6",
-                           "#ffb6db",
-                           "#490092",
-                           "#006ddb",
-                           "#b66dff",
-                           "#6db6ff",
-                           "#b6dbff",
-                           "#920000",
-                           "#924900",
-                           "#db6d00",
-                           "#24ff24",
-                           "#ffff6d"])
-
-LAYOUT = dict(
-    default=dict(
-        font={"size": 12,},
-        title={"font": {"size": 18,}},
-        legend={"font": {"size": 12,}},
-        width=1400,
-        height=900,
-        margin=dict(l=50, r=50, b=50, t=50)
-    ),
-    plain=dict(
-        font={"size": 18, "color": "#000000"},
-        title={"font": {"size": 24, "color": "#000000"}},
-        legend={"font": {"size": 14, "color": "#000000"}},
-        width=1400,
-        height=900,
-        margin=dict(l=50, r=50, b=50, t=50),
-        plot_bgcolor="#ffffff",
-        paper_bgcolor="#ffffff"
-    )
-)
-
-AXES = dict(
-    default=dict(),
-    plain=dict(
-        showline=True,
-        linewidth=1,
-        linecolor='black',
-        ticks='outside',
-        ticklen=6,
-        tickcolor='black',
-        mirror=True,
-        showgrid=True,
-        gridcolor='#aaaaaa',
-        zeroline=True,
-        zerolinewidth=1,
-        zerolinecolor='#aaaaaa',
-    )
-)
-
-def _set_layout(fig, layout):
-    """Apply correct layout to plot.
-
-    Args:
-        fig (plotly.Figure): Figure to adjust.
-        layout (str): Layout label.
-    """
-
-    fig.update_layout(**LAYOUT[layout])
-    fig.update_xaxes(**AXES[layout])
-    fig.update_yaxes(**AXES[layout])
-
-def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_type, layout='default', mode='lines+markers'):
+def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_type, theme='default', mode='lines+markers'):
     """General plot function that can be used by multiple signals.
 
     Args:
@@ -88,21 +20,21 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
         title (str): Plot title.
         legend_title (str): Legend title.
         signal_type (str): Type of signal to plot.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
         mode (str, optional): Plot trace mode. Defaults to "lines+markers".
     """
 
     for signal in filter_signals(signals, signal_type=signal_type):
         signal.plot(x, y, fig, hover_template, mode=mode)
 
-    _set_layout(fig, layout)
+    set_theme(fig, theme)
     fig.update_layout(
         legend_title_text=legend_title,
         title=title
     )
 
 
-def eispot_bode(signals, title, legend_title, db=True, layout='default'):
+def eispot_bode(signals, title, legend_title, db=True, theme='default'):
     """Bode plot of EISPOT signals.
 
     Args:
@@ -110,7 +42,7 @@ def eispot_bode(signals, title, legend_title, db=True, layout='default'):
         title (str): Plot title.
         legend_title (str): Legend title.
         db (bool, optional): Plot magnitude as dB. Defaults to True.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.04)
@@ -148,15 +80,12 @@ def eispot_bode(signals, title, legend_title, db=True, layout='default'):
         )
     )
 
-    fig.update_layout(**LAYOUT[layout])
-    fig.update_xaxes(row=1, col=1, **AXES[layout], **XAXES_EXTRA[layout])
-    fig.update_xaxes(row=2, col=1, **AXES[layout], **XAXES_EXTRA[layout])
-    fig.update_yaxes(row=1, col=1, **AXES[layout])
-    fig.update_yaxes(row=2, col=1, **AXES[layout])
+    set_theme(fig, theme)
+    fig.update_xaxes(**XAXES_EXTRA[theme])
 
     return fig
 
-def eispot_mag(signals, title, legend_title, db=True, layout='default'):
+def eispot_mag(signals, title, legend_title, db=True, theme='default'):
     """Magnitude plot for EISPOT signals.
 
     Args:
@@ -164,7 +93,7 @@ def eispot_mag(signals, title, legend_title, db=True, layout='default'):
         title (str): Plot title.
         legend_title (str): Legend title.
         db (bool, optional): Plot magnitude as dB. Defaults to True.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -173,7 +102,7 @@ def eispot_mag(signals, title, legend_title, db=True, layout='default'):
 
     hover_template = 'f = %{x:.3f}' + UNITS[x] + '<br>|Z| = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
 
     fig.update_xaxes(title_text="Frequency (" + UNITS[x] + ')', type='log')
     fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
@@ -182,14 +111,14 @@ def eispot_mag(signals, title, legend_title, db=True, layout='default'):
 
     return fig
 
-def eispot_phase(signals, title, legend_title, layout='default'):
+def eispot_phase(signals, title, legend_title, theme='default'):
     """Phase plot for EISPOT signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -201,7 +130,7 @@ def eispot_phase(signals, title, legend_title, layout='default'):
     for signal in filter_signals(signals, signal_type='EISPOT'):
         signal.plot(x, y, fig, hover_template)
 
-    _set_layout(fig, layout)
+    set_theme(fig, theme)
     fig.update_layout(
         legend_title_text=legend_title,
         title=title
@@ -212,14 +141,14 @@ def eispot_phase(signals, title, legend_title, layout='default'):
 
     return fig
 
-def eispot_nyquist(signals, title, legend_title, layout='default'):
+def eispot_nyquist(signals, title, legend_title, theme='default'):
     """Nyquist plot for EISPOT signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -228,21 +157,21 @@ def eispot_nyquist(signals, title, legend_title, layout='default'):
 
     hover_template = 'Re(Z) = %{x:.3f} ' + UNITS[x] + '<br>Im(Z) = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
 
     fig.update_xaxes(title_text="Real Impedance (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Imaginary Impedance (" + UNITS[y] + ')', scaleanchor='x', scaleratio=1)
 
     return fig
 
-def eismon_mag(signals, title, legend_title, layout='default'):
+def eismon_mag(signals, title, legend_title, theme='default'):
     """Magnitude plot for EISMON signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -251,21 +180,21 @@ def eismon_mag(signals, title, legend_title, layout='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>|Z| = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
 
     return fig
 
-def eismon_phase(signals, title, legend_title, layout='default'):
+def eismon_phase(signals, title, legend_title, theme='default'):
     """Phase plot for EISMON signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -274,21 +203,21 @@ def eismon_phase(signals, title, legend_title, layout='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>∠Z = %{y:.1f}' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", layout)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Phase (" + UNITS[y] + ')')
 
     return fig
 
-def cv(signals, title, legend_title, layout='default'):
+def cv(signals, title, legend_title, theme='default'):
     """Plot CV signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -303,7 +232,7 @@ def cv(signals, title, legend_title, layout='default'):
         for curve in set(signal.df['Curve'].values):
             signal.plot(fig, curve, hover_template, color=color)
 
-    _set_layout(fig, layout)
+    set_theme(fig, theme)
     fig.update_layout(
         legend_title_text=legend_title,
         title_text=title,
@@ -313,14 +242,14 @@ def cv(signals, title, legend_title, layout='default'):
 
     return fig
 
-def cpc(signals, title, legend_title, layout='default'):
+def cpc(signals, title, legend_title, theme='default'):
     """Plot CPC signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -329,21 +258,21 @@ def cpc(signals, title, legend_title, layout='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CPC", layout)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CPC", theme)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')
 
     return fig
 
-def chronoa(signals, title, legend_title, layout='default'):
+def chronoa(signals, title, legend_title, theme='default'):
     """Plot CHRONOA signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
-        layout (str, optional): Choose different layout format. Defaults to "default".
+        theme (str, optional): Plot theme. Defaults to "default".
     """
 
     fig = go.Figure()
@@ -352,7 +281,7 @@ def chronoa(signals, title, legend_title, layout='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CHRONOA", layout, mode='lines')
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CHRONOA", theme, mode='lines')
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')
