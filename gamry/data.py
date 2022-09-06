@@ -28,9 +28,8 @@ def load_signals(folderpath=None, signal_type=None):
     filenames = get_filenames(folderpath)
     signals = []
     for filename in filenames:
-        signal = create_signal(os.path.join(folderpath, filename), signal_type)
-        if signal:
-            signals.append(signal)
+        if sig := create_signal(os.path.join(folderpath, filename), signal_type):
+            signals.append(sig)
 
     return signals
 
@@ -113,24 +112,24 @@ def filter_signals(signals, signal_type=None, label=None, **param_filters):
     filtered = []
 
     # Skip adding files to list if doesn't meet provided conditions.
-    for signal in signals:
+    for sig in signals:
         if signal_type:
-            if not signal.type == signal_type:
+            if not sig.type == signal_type:
                 continue
 
         if label:
-            if not label in signal.label:
+            if not label in sig.label:
                 continue
 
         if param_filters:
             for key, val in param_filters.items():
-                if key in signal.params.keys():
-                    if not signal.params[key] == val:
+                if key in sig.params.keys():
+                    if not sig.params[key] == val:
                         continue
                 else:
                     continue
 
-        filtered.append(signal)
+        filtered.append(sig)
 
     return filtered
 
@@ -144,9 +143,9 @@ def convert_zview(signals):
     folder = Path(Path().absolute() / 'ZView')
     folder.mkdir(parents=True, exist_ok=True)
 
-    for signal in filter_signals(signals, 'EISPOT'):
-        signal.df[['Freq', 'Re(Z)', 'Im(Z)']].to_csv(
-            folder / (signal.label + '.txt'),
+    for sig in filter_signals(signals, 'EISPOT'):
+        sig.df[['Freq', 'Re(Z)', 'Im(Z)']].to_csv(
+            folder / (sig.label + '.txt'),
             sep='\t',
             index=None,
             header=False
@@ -164,13 +163,13 @@ def tidy_dataframe(signals):
 
     tidy_df = pd.DataFrame()
 
-    for signal in signals:
-        df = signal.df
+    for sig in signals:
+        df = sig.df
 
         # Add label, type and params as own columns
-        df['Label'] = signal.label
-        df['Type'] = signal.type
-        for key, val in signal.params.items():
+        df['Label'] = sig.label
+        df['Type'] = sig.type
+        for key, val in sig.params.items():
             df[key] = val
 
         tidy_df = pd.concat([tidy_df, df], ignore_index=True)
