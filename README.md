@@ -8,6 +8,13 @@ It is recommended to first create a virtual environment. Next, run the following
 pip install git+https://github.com/suhasharavindan/gamry.git
 ```
 
+To update the package to include new changes, you must uninstall and reinstall the package:
+
+```console
+pip uninstall gamry
+pip install git+https://github.com/suhasharavindan/gamry.git
+```
+
 ## Gamry Features
 Each data file is used to create a signal object. Using an object allows you to carry the dataframe along with several other attirbutes under one variable. The main attributes that would be useful are type, label and params.
 
