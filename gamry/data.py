@@ -123,6 +123,7 @@ def filter_signals(signals, signal_type=None, label=None, **param_filters):
 
         if param_filters:
             for key, val in param_filters.items():
+                key = key.lower()
                 if key in sig.params.keys():
                     if not sig.params[key] == val:
                         continue

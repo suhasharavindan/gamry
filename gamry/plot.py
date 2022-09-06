@@ -8,7 +8,7 @@ from gamry.data import filter_signals
 from gamry.units import UNITS
 from gamry.theme import set_theme, COL_SEQ
 
-def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_type, theme='default', mode='lines+markers'):
+def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_type, name=None, theme='default', mode='lines+markers'):
     """General plot function that can be used by multiple signals.
 
     Args:
@@ -20,12 +20,13 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
         title (str): Plot title.
         legend_title (str): Legend title.
         signal_type (str): Type of signal to plot.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
         mode (str, optional): Plot trace mode. Defaults to "lines+markers".
     """
 
     for signal in filter_signals(signals, signal_type=signal_type):
-        signal.plot(x, y, fig, hover_template, mode=mode)
+        signal.plot(x, y, fig, hover_template, name=name, mode=mode)
 
     set_theme(fig, theme)
     fig.update_layout(
@@ -34,7 +35,7 @@ def common_plot(signals, fig, x, y, hover_template, title, legend_title, signal_
     )
 
 
-def eispot_bode(signals, title, legend_title, db=True, theme='default'):
+def eispot_bode(signals, title, legend_title, db=True, name=None, theme='default'):
     """Bode plot of EISPOT signals.
 
     Args:
@@ -42,6 +43,7 @@ def eispot_bode(signals, title, legend_title, db=True, theme='default'):
         title (str): Plot title.
         legend_title (str): Legend title.
         db (bool, optional): Plot magnitude as dB. Defaults to True.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -56,9 +58,15 @@ def eispot_bode(signals, title, legend_title, db=True, theme='default'):
 
     # Plot both magnitude and phase in correct subplots in same legendgroup so they're connected
     for signal in filter_signals(signals, signal_type='EISPOT'):
+        # Set name of trace to label or param value
+        if not name:
+            name_val = signal.label
+        else:
+            name_val = str(signal.params[name.lower()])
+
         color = next(COL_SEQ)
-        signal.plot(x, y1, fig, hover_template1, row=1, col=1, legendgroup=signal.label, color=color)
-        signal.plot(x, y2, fig, hover_template2, row=2, col=1, legendgroup=signal.label, showlegend=False, color=color)
+        signal.plot(x, y1, fig, hover_template1, row=1, col=1, legendgroup=name_val, color=color)
+        signal.plot(x, y2, fig, hover_template2, row=2, col=1, legendgroup=name_val, showlegend=False, color=color)
 
     fig.update_layout(
         legend_title_text=legend_title,
@@ -85,7 +93,7 @@ def eispot_bode(signals, title, legend_title, db=True, theme='default'):
 
     return fig
 
-def eispot_mag(signals, title, legend_title, db=True, theme='default'):
+def eispot_mag(signals, title, legend_title, db=True, name=None, theme='default'):
     """Magnitude plot for EISPOT signals.
 
     Args:
@@ -93,6 +101,7 @@ def eispot_mag(signals, title, legend_title, db=True, theme='default'):
         title (str): Plot title.
         legend_title (str): Legend title.
         db (bool, optional): Plot magnitude as dB. Defaults to True.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -102,7 +111,7 @@ def eispot_mag(signals, title, legend_title, db=True, theme='default'):
 
     hover_template = 'f = %{x:.3f}' + UNITS[x] + '<br>|Z| = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", name=name, theme=theme)
 
     fig.update_xaxes(title_text="Frequency (" + UNITS[x] + ')', type='log')
     fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
@@ -111,13 +120,14 @@ def eispot_mag(signals, title, legend_title, db=True, theme='default'):
 
     return fig
 
-def eispot_phase(signals, title, legend_title, theme='default'):
+def eispot_phase(signals, title, legend_title, name=None, theme='default'):
     """Phase plot for EISPOT signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -127,8 +137,7 @@ def eispot_phase(signals, title, legend_title, theme='default'):
 
     hover_template = 'f = %{x:.3f}' + UNITS[x] + '<br>∠Z = %{y:.1f}' + UNITS[y]
 
-    for signal in filter_signals(signals, signal_type='EISPOT'):
-        signal.plot(x, y, fig, hover_template)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", name=name, theme=theme)
 
     set_theme(fig, theme)
     fig.update_layout(
@@ -141,13 +150,14 @@ def eispot_phase(signals, title, legend_title, theme='default'):
 
     return fig
 
-def eispot_nyquist(signals, title, legend_title, theme='default'):
+def eispot_nyquist(signals, title, legend_title, name=None, theme='default'):
     """Nyquist plot for EISPOT signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -157,20 +167,21 @@ def eispot_nyquist(signals, title, legend_title, theme='default'):
 
     hover_template = 'Re(Z) = %{x:.3f} ' + UNITS[x] + '<br>Im(Z) = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", name=name, theme=theme)
 
     fig.update_xaxes(title_text="Real Impedance (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Imaginary Impedance (" + UNITS[y] + ')', scaleanchor='x', scaleratio=1)
 
     return fig
 
-def eismon_mag(signals, title, legend_title, theme='default'):
+def eismon_mag(signals, title, legend_title, name=None, theme='default'):
     """Magnitude plot for EISMON signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -180,20 +191,21 @@ def eismon_mag(signals, title, legend_title, theme='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>|Z| = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", name=name, theme=theme)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
 
     return fig
 
-def eismon_phase(signals, title, legend_title, theme='default'):
+def eismon_phase(signals, title, legend_title, name=None, theme='default'):
     """Phase plot for EISMON signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -203,20 +215,21 @@ def eismon_phase(signals, title, legend_title, theme='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>∠Z = %{y:.1f}' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", theme)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", name=name, theme=theme)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Phase (" + UNITS[y] + ')')
 
     return fig
 
-def cv(signals, title, legend_title, theme='default'):
+def cv(signals, title, legend_title, name=None, theme='default'):
     """Plot CV signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -230,7 +243,7 @@ def cv(signals, title, legend_title, theme='default'):
     for signal in filter_signals(signals, signal_type='CV'):
         color = next(COL_SEQ)
         for curve in set(signal.df['Curve'].values):
-            signal.plot(fig, curve, hover_template, color=color)
+            signal.plot(fig, curve, hover_template, name=name, color=color)
 
     set_theme(fig, theme)
     fig.update_layout(
@@ -242,13 +255,14 @@ def cv(signals, title, legend_title, theme='default'):
 
     return fig
 
-def cpc(signals, title, legend_title, theme='default'):
+def cpc(signals, title, legend_title, name=None, theme='default'):
     """Plot CPC signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -258,20 +272,21 @@ def cpc(signals, title, legend_title, theme='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CPC", theme)
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CPC", name=name, theme=theme)
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')
 
     return fig
 
-def chronoa(signals, title, legend_title, theme='default'):
+def chronoa(signals, title, legend_title, name=None, theme='default'):
     """Plot CHRONOA signals.
 
     Args:
         signals (list): Signals.
         title (str): Plot title.
         legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
     """
 
@@ -281,7 +296,7 @@ def chronoa(signals, title, legend_title, theme='default'):
 
     hover_template = 't = %{x:.3f} ' + UNITS[x] + '<br>I = %{y:.1f} ' + UNITS[y]
 
-    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CHRONOA", theme, mode='lines')
+    common_plot(signals, fig, x, y, hover_template, title, legend_title, "CHRONOA", name=name, theme=theme, mode='lines')
 
     fig.update_xaxes(title_text="Time (" + UNITS[x] + ')')
     fig.update_yaxes(title_text="Current (" + UNITS[y] + ')')

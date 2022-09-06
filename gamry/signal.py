@@ -156,7 +156,7 @@ class Signal:
                 self._area = np.pi * (0.05 ** 2) # Assumes 1mm diameter electrode
 
 
-    def plot(self, x, y, fig, hover_template, row=None, col=None, legendgroup=None, showlegend=True, color=None, mode='lines+markers'):
+    def plot(self, x, y, fig, hover_template, name=None, row=None, col=None, legendgroup=None, showlegend=True, color=None, mode='lines+markers'):
         """Plot signal with option for subplots.
 
         Args:
@@ -164,6 +164,7 @@ class Signal:
             y (str): Dataframe column for y values.
             fig (plotly.Figure): Figure to add signal to.
             hover_template (str): Hover text format.
+            name (str): Param key to get label for trace.
             row (int, optional): Subplot row. Defaults to None.
             col (int, optional): Subplot column. Defaults to None.
             legendgroup (str, optional): Name of legend group. Defaults to None.
@@ -171,12 +172,19 @@ class Signal:
             color (str, optional): Signal plot color. Defaults to None.
         """
 
+        # Set name of trace to label or param value
+        if not name:
+            name_val = self.label
+        else:
+            name_val = str(self.params[name.lower()])
+
+        # Handle both singular plots and subplots
         if row and col:
             fig.add_trace(go.Scatter(
                 x=self.df[x],
                 y=self.df[y],
                 mode=mode,
-                name=self.label,
+                name=name_val,
                 hovertemplate=hover_template,
                 legendgroup=legendgroup,
                 showlegend=showlegend,
@@ -186,8 +194,11 @@ class Signal:
                 x=self.df[x],
                 y=self.df[y],
                 mode=mode,
-                name=self.label,
-                hovertemplate=hover_template))
+                name=name_val,
+                hovertemplate=hover_template,
+                legendgroup=legendgroup,
+                showlegend=showlegend,
+                line=dict(color=color)))
 
 class EISPOT(Signal):
     """Potentiometric EIS signal.
@@ -363,7 +374,7 @@ class CV(Signal):
         self._clean_df()
         self.df['I'] = 1E6 * self.df['I']
 
-    def plot(self, fig, curve, hover_template, color=None):
+    def plot(self, fig, curve, hover_template, name=None, color=None):
         """Plot CV signal.
 
         Args:
@@ -375,12 +386,18 @@ class CV(Signal):
 
         show_legend = True if curve == 1 else False
 
+        # Set name of trace to label or param value
+        if not name:
+            name_val = self.label
+        else:
+            name_val = str(self.params[name.lower()])
+
         # Plot specific curve
         fig.add_trace(go.Scatter(x=self.df[self.df['Curve'] == curve]['E'],
                                  y=self.df[self.df['Curve'] == curve]['I'],
                                  mode='lines',
-                                 legendgroup=self.label,
-                                 name=self.label,
+                                 legendgroup=name_val,
+                                 name=name_val,
                                  text=['Curve ' + str(curve)] * len(self.df[self.df['Curve'] == curve]['E'].values),
                                  hovertemplate=hover_template,
                                  line=dict(color=color),
