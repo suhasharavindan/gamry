@@ -112,6 +112,14 @@ def eispot_mag(signals, title, legend_title, db=True, name=None, theme='default'
 
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", name=name, theme=theme)
 
+    XAXES_EXTRA = dict(
+        plain=dict(
+            dtick=1,    # Only show numbers for powers of 10
+            minor=dict(ticklen=6, tickcolor="black")
+        )
+    )
+    fig.update_xaxes(**XAXES_EXTRA.get(theme.lower()))
+
     fig.update_xaxes(title_text="Frequency (" + UNITS[x] + ')', type='log')
     fig.update_yaxes(title_text="Magnitude (" + UNITS[y] + ')')
     if not db:
