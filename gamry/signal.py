@@ -218,11 +218,32 @@ class EISPOT(Signal):
         skip_lines = find_skiplines(filepath, 'ZCURVE')
         super()._read_data(filepath, skip_lines)
 
-        self.rs = self.df['|Z|'].min() # Series resistance
-        self.df['|Z| dB'] = 20 * np.log10(self.df['|Z|'] / self.rs)
+        self._rs = self.df['|Z|'].min() # Series resistance
+        self.df['|Z| dB'] = 20 * np.log10(self.df['|Z|'] / self._rs)
 
-        self.db_corner_params = self._set_db_corner_freq()
-        self.phase_corner_params = self._set_phase_corner_frequency()
+        self._set_db_corner_freq()
+        self._set_phase_corner_frequency()
+
+    @property
+    def rs(self):
+        """Solution resistance.
+
+        Returns:
+            float: Resistance in ohms.
+        """
+        return self._rs
+
+    @rs.setter
+    def rs(self, value):
+        """Sets solution resistance.
+
+        Args:
+            value (float): Resistance in ohms.
+        """
+        self._rs = value
+        self.df['|Z| dB'] = 20 * np.log10(self.df['|Z|'] / self._rs)
+        self._set_db_corner_freq()
+        self._set_phase_corner_frequency()
 
     @Signal.area.setter
     def area(self, value):
@@ -246,7 +267,7 @@ class EISPOT(Signal):
         f = interp1d(self.df['|Z| dB'], self.df['Freq'])
         try:
             corner_freq = f(3)
-            cap = 1 / (2*np.pi*self.rs*corner_freq)
+            cap = 1 / (2*np.pi*self._rs*corner_freq)
             cap_area = cap / self._area
             factor = cap_area / 20E-6 # F/cm2
         except ValueError:
@@ -255,10 +276,10 @@ class EISPOT(Signal):
             cap_area = None
             factor = None
 
-        return {'freq':corner_freq,
-                'cap':cap,
-                'cap/area':cap_area,
-                'factor':factor}
+        self.db_corner_params = {'freq':corner_freq,
+                                 'cap':cap,
+                                 'cap/area':cap_area,
+                                 'factor':factor}
 
 
     def _set_phase_corner_frequency(self):
@@ -272,7 +293,7 @@ class EISPOT(Signal):
         f = interp1d(self.df['Phase'], self.df['Freq'])
         try:
             corner_freq = f(-45)
-            cap = 1 / (2*np.pi*self.rs*corner_freq)
+            cap = 1 / (2*np.pi*self._rs*corner_freq)
             cap_area = cap / self._area
             factor = cap_area / 20E-6 # F/cm2
         except ValueError:
@@ -281,10 +302,10 @@ class EISPOT(Signal):
             cap_area = None
             factor = None
 
-        return {'freq':corner_freq,
-                'cap':cap,
-                'cap/area':cap_area,
-                'factor':factor}
+        self.phase_corner_params = {'freq':corner_freq,
+                                    'cap':cap,
+                                    'cap/area':cap_area,
+                                    'factor':factor}
 
 
 class EISMON(Signal):
