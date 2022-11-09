@@ -37,6 +37,7 @@ class Signal:
         Args:
             signal_type (str): Signal type.
             filepath (str): Signal file.
+            ignore_notes (bool): Read notes in Gamry file.
         """
 
         self.type = signal_type
@@ -213,6 +214,7 @@ class EISPOT(Signal):
 
         Args:
             filepath (str): Signal file.
+            ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
         """
 
         super().__init__("EISPOT", filepath, ignore_notes)
@@ -321,6 +323,7 @@ class EISMON(Signal):
 
         Args:
             filepath (str): Signal file.
+            ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
         """
 
         super().__init__("EISMON", filepath, ignore_notes)
@@ -341,6 +344,7 @@ class CV(Signal):
 
         Args:
             filepath (str): Signal file.
+            ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
         """
 
         super().__init__("CV", filepath, ignore_notes)
@@ -438,6 +442,7 @@ class CPC(Signal):
 
         Args:
             filepath (str): Signal file.
+            ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
         """
 
         super().__init__("CPC", filepath, ignore_notes)
@@ -460,6 +465,7 @@ class CHRONOA(Signal):
 
         Args:
             filepath (str): Signal file.
+            ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
         """
 
         super().__init__("CHRONOA", filepath, ignore_notes)

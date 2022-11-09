@@ -16,7 +16,7 @@ pip install git+https://github.com/suhasharavindan/gamry.git
 ```
 
 ## Gamry Features
-Each data file is used to create a signal object. Using an object allows you to carry the dataframe along with several other attirbutes under one variable. The main attributes that would be useful are type, label and params.
+Each data file is used to create a signal object. Using an object allows you to carry the dataframe along with several other attributes under one variable. The main attributes that would be useful are type, label and params.
 
 Params are the notes that are read in from the file. These must be written in a dictionary like format with a newline between each, like below. Automatic unit conversion to defaults is included for singular units, like mm or Hz, not mV/s.
 
@@ -32,54 +32,170 @@ Additionally, there are data reading and plotting helper functions. These make i
 Finally, the package also includes data conversion functions that allow the user to manipulate it in other ways. The data can be converted to a ZView compatible file, or all the data can be combined into a tidy dataframe.
 
 ## Using Gamry
-Here are the majority of use cases for the package. There are other functions, such as the CV plotting function, that generally follow the format of one of the examples below. Use the docstrings to help determine how to use them.
+Here are the majority of use cases for the package. Use the docstrings to help determine how to use them.
 
-Load all the Gamry files in a folder into a list:
+Signal properties:
  ```python
-from gamry.data import load_signals
-signals = load_signals()
+signal.type # (str) Signal type
+signal.label # (str) Signal name
+signal.params # (dict) Parameters read from datafile notes
+signal.df # (pandas Dataframe) Signal data
+signal.area # (float) Electrode area in cm^2
 ```
 
-Load only the EISPOT files in a folder into a list:
+Load Gamry files in a folder into a list:
  ```python
 from gamry.data import load_signals
-signals = load_signals(signal_type='EISPOT')
+
+signals = load_signals(folderpath=None, signal_type=None, ignore_notes=False)
+    """Read in signals from Gamry exported data.
+
+    Args:
+        folderpath (str, optional): Folder with signal files. Defaults to None.
+        signal_type (str, optional): Signal type for filtering. Defaults to None.
+        ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
+
+    Returns:
+        list: Signals.
+    """
+```
+
+Other datafile loading functions that will probably be used less often:
+ ```python
+from gamry.data import get_filenames, create_signal
+
+get_filenames(folderpath):
+    """Filter Gamry files in folder.
+
+    Args:
+        folderpath (str): Folder to pull signal files from.
+
+    Returns:
+        list: Gamry signal filenames.
+    """
+
+create_signal(filepath, signal_type=None, ignore_notes=False):
+    """Create proper signal object based on tag in signal file.
+
+    Args:
+        filepath (str): Signal file.
+        signal_type (str, optional): Signal type for filtering. Defaults to None.
+        ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
+
+    Returns:
+        signal object: Relevant signal object.
+    """
 ```
 
 Plot the EISPOT files in a bode plot:
  ```python
 from gamry.plot import eispot_bode
-eispot_bode(signals, 'Graph Title', 'Legend Title').show()
+
+plt = eispot_bode(signals, title, legend_title, db=True, name=None, theme='default')
+    """Bode plot of EISPOT signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        db (bool, optional): Plot magnitude as dB. Defaults to True.
+        name (str, optional): Param key to get label for trace. Defaults to None.
+        theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
+    """
 ```
 
-Plot the EISPOT files in a bode plot setting the name of each trace to its respective param value:
+Other plotting functions and options:
  ```python
-from gamry.plot import eispot_bode
-eispot_bode(signals, 'Graph Title', 'Legend Title', name='Plating Voltage').show()
+plt = eispot_mag(signals, title, legend_title, db=True, name=None, theme='default'):
+    """Magnitude plot for EISPOT signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        db (bool, optional): Plot magnitude as dB. Defaults to True.
+        name (str, optional): Param key to get label for trace. Defaults to None.
+        theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
+    """
+
+plt = eispot_phase(signals, title, legend_title, name=None, theme='default'):
+    """Phase plot for EISPOT signals.
+
+    Args:
+        signals (list): Signals.
+        title (str): Plot title.
+        legend_title (str): Legend title.
+        name (str, optional): Param key to get label for trace. Defaults to None.
+        theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure."""
+
+plt = eispot_nyquist(signals, title, legend_title, name=None, theme='default'):
+    """Nyquist plot for EISPOT signals."""
+
+plt = eismon_mag(signals, title, legend_title, name=None, theme='default'):
+    """Magnitude plot for EISMON signals."""
+
+plt = eismon_phase(signals, title, legend_title, name=None, theme='default'):
+    """Phase plot for EISMON signals."""
+
+plt = cv(signals, title, legend_title, name=None, theme='default'):
+    """Plot CV signals."""
+
+plt = cpc(signals, title, legend_title, name=None, theme='default'):
+    """Plot CPC signals.    """
+
+plt = chronoa(signals, title, legend_title, name=None, theme='default'):
+    """Plot CHRONOA signals."""
 ```
 
-Plot the EISPOT files in a bode plot using a plain theme:
- ```python
-from gamry.plot import eispot_bode
-eispot_bode(signals, 'Graph Title', 'Legend Title', theme='plain').show()
-```
-
-Filter signals to CVs with "sample1" in the label and a 0.5V plating voltage listed in the params:
+Filter signals based on various parameters:
  ```python
 from gamry.data import filter_signals
-CV_s1_05V = filter_signals(signals, 'CV', 'sample1', {'Plating Voltage':'0.5'})
+
+filtered_signals = filter_signals(signals, signal_type=None, label=None, **param_filters):
+    """
+    Args:
+        signals (list): Signals.
+        signal_type (str, optional): Signal type to filter. Defaults to None.
+        label (str, optional): Signal label to filter. Defaults to None.
+        **param_filters: Arbitrary keyword arguments to filter signal.params.
+
+    Returns:
+        list: Filtered signals.
+    """
 ```
 
 Create ZView compatible datafile for further analysis:
  ```python
 from gamry.data import convert_zview
-convert_zview(signals)
+
+convert_zview(signals):
+    """
+    Args:
+        signals (list): Signals.
+    """
 ```
 
 Create tidy dataframe for further analysis:
  ```python
 from gamry.data import tidy_dataframe
-tidy_df = tidy_dataframe(signals)
+
+tidy_df = tidy_dataframe(signals):
+    """
+    Args:
+        signals (list): Signals.
+
+    Returns:
+        pandas.DataFrame: Tidy dataframe combining all signals.
+    """
 ```
 
 ## Contact

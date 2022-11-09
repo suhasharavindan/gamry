@@ -45,6 +45,9 @@ def eispot_bode(signals, title, legend_title, db=True, name=None, theme='default
         db (bool, optional): Plot magnitude as dB. Defaults to True.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.04)
@@ -104,6 +107,9 @@ def eispot_mag(signals, title, legend_title, db=True, name=None, theme='default'
         db (bool, optional): Plot magnitude as dB. Defaults to True.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()
@@ -140,6 +146,9 @@ def eispot_phase(signals, title, legend_title, name=None, theme='default'):
         legend_title (str): Legend title.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()
@@ -170,6 +179,9 @@ def eispot_nyquist(signals, title, legend_title, name=None, theme='default'):
         legend_title (str): Legend title.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()
@@ -194,6 +206,9 @@ def eismon_mag(signals, title, legend_title, name=None, theme='default'):
         legend_title (str): Legend title.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()
@@ -218,6 +233,9 @@ def eismon_phase(signals, title, legend_title, name=None, theme='default'):
         legend_title (str): Legend title.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()
@@ -242,6 +260,9 @@ def cv(signals, title, legend_title, name=None, theme='default'):
         legend_title (str): Legend title.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()
@@ -275,6 +296,9 @@ def cpc(signals, title, legend_title, name=None, theme='default'):
         legend_title (str): Legend title.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()
@@ -299,6 +323,9 @@ def chronoa(signals, title, legend_title, name=None, theme='default'):
         legend_title (str): Legend title.
         name (str, optional): Param key to get label for trace. Defaults to None.
         theme (str, optional): Plot theme. Defaults to "default".
+
+    Returns:
+        plotly.graph_objects.Figure: Plot figure.
     """
 
     fig = go.Figure()

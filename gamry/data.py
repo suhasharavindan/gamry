@@ -14,6 +14,7 @@ def load_signals(folderpath=None, signal_type=None, ignore_notes=False):
     Args:
         folderpath (str, optional): Folder with signal files. Defaults to None.
         signal_type (str, optional): Signal type for filtering. Defaults to None.
+        ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
 
     Returns:
         list: Signals.
@@ -57,9 +58,10 @@ def create_signal(filepath, signal_type=None, ignore_notes=False):
     Args:
         filepath (str): Signal file.
         signal_type (str, optional): Signal type for filtering. Defaults to None.
+        ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
 
     Returns:
-        signal object: Relevant signal project.
+        Signal: Relevant signal object.
     """
 
     # Read tag in file to know signal type
@@ -79,6 +81,7 @@ def _load_object(filepath, data_type, ignore_notes=False):
     Args:
         filepath (str): Signal file.
         data_type (str): Signal type.
+        ignore_notes (bool, optional): Read notes in Gamry file. Defaults to False.
 
     Returns:
         Signal: Signal object.
@@ -103,7 +106,7 @@ def filter_signals(signals, signal_type=None, label=None, **param_filters):
         signals (list): Signals.
         signal_type (str, optional): Signal type to filter. Defaults to None.
         label (str, optional): Signal label to filter. Defaults to None.
-        **param_filters: Arbitrary keyword arguments to filter params.
+        **param_filters: Arbitrary keyword arguments to filter signal.params.
 
     Returns:
         list: Filtered signals.
