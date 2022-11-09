@@ -81,6 +81,8 @@ def eispot_bode(signals, title, legend_title, db=True, name=None, theme='default
         fig.update_yaxes(type='log', row=1, col=1)
 
     XAXES_EXTRA = dict(
+        default=dict(
+        ),
         plain=dict(
             dtick=1,    # Only show numbers for powers of 10
             minor=dict(ticklen=6, tickcolor="black")
@@ -113,6 +115,8 @@ def eispot_mag(signals, title, legend_title, db=True, name=None, theme='default'
     common_plot(signals, fig, x, y, hover_template, title, legend_title, "EISPOT", name=name, theme=theme)
 
     XAXES_EXTRA = dict(
+        default=dict(
+        ),
         plain=dict(
             dtick=1,    # Only show numbers for powers of 10
             minor=dict(ticklen=6, tickcolor="black")

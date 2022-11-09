@@ -43,6 +43,8 @@ LAYOUT = dict(
 )
 
 AXES = dict(
+    default=dict(
+    ),
     plain=dict(
         showline=True,
         linewidth=1,

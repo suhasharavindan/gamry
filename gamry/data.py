@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 from gamry import signal
 
-def load_signals(folderpath=None, signal_type=None):
+def load_signals(folderpath=None, signal_type=None, ignore_notes=False):
     """Read in signals from Gamry exported data.
 
     Args:
@@ -28,7 +28,7 @@ def load_signals(folderpath=None, signal_type=None):
     filenames = get_filenames(folderpath)
     signals = []
     for filename in filenames:
-        if sig := create_signal(os.path.join(folderpath, filename), signal_type):
+        if sig := create_signal(os.path.join(folderpath, filename), signal_type, ignore_notes):
             signals.append(sig)
 
     return signals
@@ -51,7 +51,7 @@ def get_filenames(folderpath):
 
     return filename_list
 
-def create_signal(filepath, signal_type=None):
+def create_signal(filepath, signal_type=None, ignore_notes=False):
     """Create proper signal object based on tag in signal file.
 
     Args:
@@ -69,11 +69,11 @@ def create_signal(filepath, signal_type=None):
 
     if signal_type:
         if data_type == signal_type:
-            return _load_object(filepath, data_type)
+            return _load_object(filepath, data_type, ignore_notes)
     else:
-        return _load_object(filepath, data_type)
+        return _load_object(filepath, data_type, ignore_notes)
 
-def _load_object(filepath, data_type):
+def _load_object(filepath, data_type, ignore_notes=False):
     """Load correct signal object depending on signal type.
 
     Args:
@@ -84,15 +84,15 @@ def _load_object(filepath, data_type):
         Signal: Signal object.
     """
     if data_type == 'EISPOT':
-        return signal.EISPOT(filepath)
+        return signal.EISPOT(filepath, ignore_notes)
     elif data_type == 'EISMON':
-        return signal.EISMON(filepath)
+        return signal.EISMON(filepath, ignore_notes)
     elif data_type == 'CV':
-        return signal.CV(filepath)
+        return signal.CV(filepath, ignore_notes)
     elif data_type == 'CPC':
-        return signal.CPC(filepath)
+        return signal.CPC(filepath, ignore_notes)
     elif data_type == 'CHRONOA':
-        return signal.CHRONOA(filepath)
+        return signal.CHRONOA(filepath, ignore_notes)
     else:
         return None
 

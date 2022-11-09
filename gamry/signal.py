@@ -31,7 +31,7 @@ def find_skiplines(filepath, search_str):
 class Signal:
     """Parent signal object."""
 
-    def __init__(self, signal_type, filepath):
+    def __init__(self, signal_type, filepath, ignore_notes):
         """Initialize parent signal object.
 
         Args:
@@ -45,7 +45,8 @@ class Signal:
         self.label = None
         self.params = {} # Holds arbitrary parameters that are saved in the file notes
 
-        self._read_note(filepath)
+        if not ignore_notes:
+            self._read_note(filepath)
         self._update_attributes(filepath)
 
     @property
@@ -207,14 +208,14 @@ class EISPOT(Signal):
         Signal (Signal): Parent signal object.
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, ignore_notes=False):
         """Initialize EISPOT object.
 
         Args:
             filepath (str): Signal file.
         """
 
-        super().__init__("EISPOT", filepath)
+        super().__init__("EISPOT", filepath, ignore_notes)
         skip_lines = find_skiplines(filepath, 'ZCURVE')
         super()._read_data(filepath, skip_lines)
 
@@ -315,14 +316,14 @@ class EISMON(Signal):
         Signal (Signal): Parent signal object.
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, ignore_notes=False):
         """Initialize EISMON object.
 
         Args:
             filepath (str): Signal file.
         """
 
-        super().__init__("EISMON", filepath)
+        super().__init__("EISMON", filepath, ignore_notes)
 
         skip_lines = find_skiplines(filepath, 'ZCURVE')
         super()._read_data(filepath, skip_lines)
@@ -335,14 +336,14 @@ class CV(Signal):
         Signal (Signal): Parent signal object.
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, ignore_notes=False):
         """Initialize CV object.
 
         Args:
             filepath (str): Signal file.
         """
 
-        super().__init__("CV", filepath)
+        super().__init__("CV", filepath, ignore_notes)
         self._read_data(filepath)
 
     def find_skiplines(self, filepath):
@@ -432,14 +433,14 @@ class CPC(Signal):
         Signal (Signal): Parent signal object.
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, ignore_notes=False):
         """Initialize CPC object.
 
         Args:
             filepath (str): Signal file.
         """
 
-        super().__init__("CPC", filepath)
+        super().__init__("CPC", filepath, ignore_notes)
 
         skip_lines = find_skiplines(filepath, 'CURVE')
         self._read_data(filepath, skip_lines)
@@ -454,14 +455,14 @@ class CHRONOA(Signal):
         Signal (Signal): Parent signal object.
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, ignore_notes=False):
         """Initialize CHRONOA object.
 
         Args:
             filepath (str): Signal file.
         """
 
-        super().__init__("CHRONOA", filepath)
+        super().__init__("CHRONOA", filepath, ignore_notes)
 
         skip_lines = find_skiplines(filepath, "CURVE")
         self._read_data(filepath, skip_lines)
